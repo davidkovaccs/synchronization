@@ -1,0 +1,30 @@
+es:
+  refinery:
+    plugins:
+      synchronizations:
+        title: Synchronizations
+#        article: masculino/femenino
+    synchronizations:
+      admin:
+        synchronizations:
+          actions:
+            create_new: Crear nuevo synchronization
+            reorder: Reordenar synchronizations
+            reorder_done: Reordenación de synchronizations completada
+          records:
+            title: Synchronizations
+            sorry_no_results: Lo siento, no hay resultados
+            no_items_yet: No hay synchronizations todavía. Pulsa en "Crear nuevo Synchronization" para crear tu primer synchronization.
+          synchronization:
+            view_live_html: Ver este synchronization como abierto al público <br/><em>(abre en ventana nueva)</em>
+            edit: Editar este synchronization
+            delete: Borrar este synchronization para siempre
+      synchronizations:
+        show:
+          other: Otros synchronizations
+  activerecord:
+    attributes:
+      'refinery/synchronizations/synchronization':
+        model_name: Model Name
+        method_name: Method Name
+        model_updated_at: Model Updated At

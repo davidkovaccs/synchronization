@@ -1,0 +1,39 @@
+<% content_for :body_content_title do %>
+  <%= @synchronization.model_name %>
+<% end %>
+
+<% content_for :body_content_left do %>
+  <section>
+    <h1>Model Name</h1>
+    <p>
+      <%=raw @synchronization.model_name %>
+    </p>
+  </section>
+  <section>
+    <h1>Method Name</h1>
+    <p>
+      <%=raw @synchronization.method_name %>
+    </p>
+  </section>
+  <section>
+    <h1>Model Updated At</h1>
+    <p>
+      <%=raw @synchronization.model_updated_at %>
+    </p>
+  </section>
+<% end %>
+
+<% content_for :body_content_right do %>
+  <aside>
+    <h2><%= t('.other') %></h2>
+    <ul id="synchronizations">
+      <% @synchronizations.each do |synchronization| %>
+        <li>
+          <%= link_to synchronization.model_name, refinery.synchronizations_synchronization_path(synchronization) %>
+        </li>
+      <% end %>
+    </ul>
+  </aside>
+<% end %>
+
+<%= render '/refinery/content_page' %>

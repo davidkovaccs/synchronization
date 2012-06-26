@@ -1,0 +1,29 @@
+nl:
+  refinery:
+    plugins:
+      synchronizations:
+        title: Synchronizations
+    synchronizations:
+      admin:
+        synchronizations:
+          actions:
+            create_new: Maak een nieuwe Synchronization
+            reorder: Wijzig de volgorde van de Synchronizations
+            reorder_done: Klaar met het wijzingen van de volgorde van de Synchronizations
+          records:
+            title: Synchronizations
+            sorry_no_results: Helaas! Er zijn geen resultaten gevonden.
+            no_items_yet: Er zijn nog geen Synchronizations. Druk op 'Maak een nieuwe Synchronization' om de eerste aan te maken.
+          synchronization:
+            view_live_html: Bekijk deze synchronization op de website <br/><em>(opent een nieuw venster)</em>
+            edit: Bewerk deze synchronization
+            delete: Verwijder deze synchronization voor eeuwig
+      synchronizations:
+        show:
+          other: Andere Synchronizations
+  activerecord:
+    attributes:
+      'refinery/synchronizations/synchronization':
+        model_name: Model Name
+        method_name: Method Name
+        model_updated_at: Model Updated At

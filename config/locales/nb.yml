@@ -1,0 +1,29 @@
+nb:
+  refinery:
+    plugins:
+      synchronizations:
+        title: Synchronizations
+    synchronizations:
+      admin:
+        synchronizations:
+          actions:
+            create_new: Lag en ny Synchronization
+            reorder: Endre rekkefølgen på Synchronizations
+            reorder_done: Ferdig å endre rekkefølgen Synchronizations
+          records:
+            title: Synchronizations
+            sorry_no_results: Beklager! Vi fant ikke noen resultater.
+            no_items_yet: Det er ingen Synchronizations enda. Klikk på "Lag en ny Synchronization" for å legge til din første synchronization.
+          synchronization:
+            view_live_html: Vis hvordan denne synchronization ser ut offentlig <br/><em>(åpner i et nytt vindu)</em>
+            edit: Rediger denne synchronization
+            delete: Fjern denne synchronization permanent
+      synchronizations:
+        show:
+          other: Andre Synchronizations
+  activerecord:
+    attributes:
+      'refinery/synchronizations/synchronization':
+        model_name: Model Name
+        method_name: Method Name
+        model_updated_at: Model Updated At

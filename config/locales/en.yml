@@ -1,0 +1,29 @@
+en:
+  refinery:
+    plugins:
+      synchronizations:
+        title: Synchronizations
+    synchronizations:
+      admin:
+        synchronizations:
+          actions:
+            create_new: Add New Synchronization
+            reorder: Reorder Synchronizations
+            reorder_done: Done Reordering Synchronizations
+          records:
+            title: Synchronizations
+            sorry_no_results: Sorry! There are no results found.
+            no_items_yet: There are no Synchronizations yet. Click "Add New Synchronization" to add your first synchronization.
+          synchronization:
+            view_live_html: View this synchronization live <br/><em>(opens in a new window)</em>
+            edit: Edit this synchronization
+            delete: Remove this synchronization forever
+      synchronizations:
+        show:
+          other: Other Synchronizations
+  activerecord:
+    attributes:
+      'refinery/synchronizations/synchronization':
+        model_name: Model Name
+        method_name: Method Name
+        model_updated_at: Model Updated At

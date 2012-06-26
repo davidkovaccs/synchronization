@@ -1,0 +1,29 @@
+fr:
+  refinery:
+    plugins:
+      synchronizations:
+        title: Synchronizations
+    synchronizations:
+      admin:
+        synchronizations:
+          actions:
+            create_new: Créer un(e) nouve(au/l/lle) Synchronization
+            reorder: Réordonner les Synchronizations
+            reorder_done: Fin de réordonnancement des Synchronizations
+          records:
+            title: Synchronizations
+            sorry_no_results: "Désolé ! Aucun résultat."
+            no_items_yet: 'Il n''y a actuellement aucun(e) Synchronization. Cliquer sur "Créer un(e) nouve(au/l/lle) Synchronization" pour créer votre premi(er/ère) synchronization.'
+          synchronization:
+            view_live_html: Voir ce(t/tte) synchronization <br/><em>(Ouvre une nouvelle fenêtre)</em>
+            edit: Modifier ce(t/tte) synchronization
+            delete: Supprimer définitivement ce(t/tte) synchronization
+      synchronizations:
+        show:
+          other: Autres Synchronizations
+  activerecord:
+    attributes:
+      'refinery/synchronizations/synchronization':
+        model_name: Model Name
+        method_name: Method Name
+        model_updated_at: Model Updated At

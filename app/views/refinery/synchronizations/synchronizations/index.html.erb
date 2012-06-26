@@ -1,0 +1,11 @@
+<% content_for :body_content_left do %>
+  <ul id="synchronizations">
+    <% @synchronizations.each do |synchronization| %>
+      <li>
+        <%= link_to synchronization.model_name, refinery.synchronizations_synchronization_path(synchronization) %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
+
+<%= render '/refinery/content_page' %>

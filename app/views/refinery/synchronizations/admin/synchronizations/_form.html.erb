@@ -1,0 +1,29 @@
+<%= form_for [refinery, :synchronizations_admin, @synchronization] do |f| -%>
+  <%= render '/refinery/admin/error_messages',
+              :object => @synchronization,
+              :include_object_name => true %>
+
+  
+  <div class='field'>
+    <%= f.label :model_name -%>
+    <%= f.text_field :model_name, :class => 'larger widest'  -%>
+
+  </div>
+  
+  <div class='field'>
+    <%= f.label :method_name -%>
+    <%= f.text_field :method_name  -%>
+
+  </div>
+  
+  <div class='field'>
+    <%= f.label :model_updated_at -%>
+    <%= f.datetime_select :model_updated_at  -%>
+
+  </div>
+  
+  <%= render '/refinery/admin/form_actions', :f => f,
+             :continue_editing => false,
+             :delete_title => t('delete', :scope => 'refinery.synchronizations.admin.synchronizations.synchronization'),
+             :delete_confirmation => t('message', :scope => 'refinery.admin.delete', :title => @synchronization.model_name) %>
+<% end -%>
