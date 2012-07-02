@@ -71,13 +71,11 @@ module Refinery
       end
       
       def update_user
+        oldPhone = ""
         unless current_refinery_user.nil? then
           unless params[:phone].nil? then
+            oldPhone = current_refinery_user.phone
             current_refinery_user.phone = params[:phone]
-            sm = ::Refinery::Sms::Sm.create(:message => "Your verification code is: #{current_refinery_user.verification_code}", :to_number => params[:phone], :user_id => current_refinery_user.id)
-            Rails.logger.info "Sm created: " + sm.to_s
-            resp = sm.send_to_dst
-            Rails.logger.info "Sm sent: " + resp.body + ", #{sm.transaction_id}"
           end
           unless params[:birthday].nil? then
             current_refinery_user.birthday = params[:birthday]
@@ -86,6 +84,12 @@ module Refinery
             current_refinery_user.gender = params[:gender]
           end
           if current_refinery_user.save then
+            if params[:phone].present? and not params[:phone].eql?(oldPhone) then
+              sm = ::Refinery::Sms::Sm.create(:message => "Your verification code is: #{current_refinery_user.verification_code}", :to_number => params[:phone], :user_id => current_refinery_user.id)
+              Rails.logger.info "Sm created: " + sm.to_s
+              resp = sm.send_to_dst
+              Rails.logger.info "Sm sent: " + resp.body + ", #{sm.transaction_id}"
+            end
             render :json => current_refinery_user, :status => 200
           else
             raise BadRequest
