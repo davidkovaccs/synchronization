@@ -62,17 +62,17 @@ module Refinery
               
         def as_json(options=nil)
           #if (self.include_root_in_json?)
-            unless (self.class.json_attrs?.nil?)
-              return { getModelName.underscore => Hash[self.class.json_attrs?.map{|j| [j[0],send(j[1])]}] }
-            else
-              return { getModelName.underscore => attributes }
-            end
-          #else
           #  unless (self.class.json_attrs?.nil?)
-          #    return Hash[self.class.json_attrs?.map{|j| [j[0],send(j[1])]}]
+          #    return { getModelName.underscore => Hash[self.class.json_attrs?.map{|j| [j[0],send(j[1])]}] }
           #  else
-          #    return attributes
+          #    return { getModelName.underscore => attributes }
           #  end
+          #else
+            unless (self.class.json_attrs?.nil?)
+              return Hash[self.class.json_attrs?.map{|j| [j[0],send(j[1])]}]
+            else
+              return attributes
+            end
           #end
         end
     

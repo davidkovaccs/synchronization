@@ -6,7 +6,7 @@ module Refinery
       before_filter :check_model, :only => [:sync_model, :sync_model_auth, :create_record, :model_indexes, :model_indexes_auth]
       # before_filter :authenticate_refinery_user!, :only => [:sync_model_auth, :synchronizations_all, :create_record, :login, :update_user, :verify_user, :model_indexes_auth]
       # FIXME: authenticate_refinery_user! should do this
-      before_filter :fb_test, :only => [:sync_model_auth, :synchronizations_all, :create_record, :login, :update_user, :verify_user, :model_indexes_auth]
+      # before_filter :fb_test, :only => [:sync_model_auth, :synchronizations_all, :create_record, :login, :update_user, :verify_user, :model_indexes_auth]
     
       rescue_from ::BadRequest, :with => :bad_request
       rescue_from ::RecordConflict, :with => :record_conflict
@@ -164,14 +164,6 @@ module Refinery
           @records = Synchronization.find(:all, :conditions => ['updated_at > ?', Time.parse(params[:updated_at])+1])
         end
 
-        # FIXME: HACK
-        ::Refinery::CollectedActivityitems::CollectedActivityitem.first
-        ::Refinery::RedeemedItems::RedeemedItem.first
-        ::Refinery::Referrals::Referral.first
-        ::Refinery::Signups::Signup.first
-        ::Refinery::TeamMembers::TeamMember.first
-        ::Refinery::ClubMembers::ClubMember.first
-        
         for obj_class in $objects_needs_auth do
           Rails.logger.info "Obj that needs auth: #{obj_class.name}"
           obj = nil
