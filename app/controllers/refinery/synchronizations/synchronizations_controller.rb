@@ -203,10 +203,10 @@ module Refinery
       end
 
       def create_record
-        if current_refinery_user.nil? then
-          # FIXME: should never happen
-          return render :json => "", :status => 401
-        end
+        #if current_refinery_user.nil? then
+        #  # FIXME: should never happen
+        #  return render :json => "", :status => 401
+        #end
         
         Rails.logger.info "Params: " + params.to_s
 
