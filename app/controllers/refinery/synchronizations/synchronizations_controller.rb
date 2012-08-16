@@ -74,17 +74,22 @@ module Refinery
         oldPhone = ""
         unless current_refinery_user.nil? then
           unless params[:phone].nil? then
-            oldPhone = current_refinery_user.phone
             current_refinery_user.phone = params[:phone]
+            current_refinery_user.verified = false
+            current_refinery_user.verification_code = (Time.now.to_i/100 * rand(100) / 100000).to_i
           end
           unless params[:birthday].nil? then
             current_refinery_user.birthday = params[:birthday]
           end
           unless params[:gender].nil? then
-            current_refinery_user.gender = params[:gender]
+            if params[:gender].eql?("male") then
+              current_refinery_user.gender = true
+            else
+              current_refinery_user.gender = false
+            end
           end
           if current_refinery_user.save then
-            if params[:phone].present? and not params[:phone].eql?(oldPhone) then
+            if params[:phone].present? then
               sm = ::Refinery::Sms::Sm.create(:message => "Your verification code is: #{current_refinery_user.verification_code}", :to_number => params[:phone], :user_id => current_refinery_user.id)
               Rails.logger.info "Sm created: " + sm.to_s
               resp = sm.send_to_dst
