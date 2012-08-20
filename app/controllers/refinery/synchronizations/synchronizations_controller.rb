@@ -4,18 +4,12 @@ module Refinery
     class SynchronizationsController < ::ApplicationController
      
       before_filter :check_model, :only => [:sync_model, :sync_model_auth, :create_record, :model_indexes, :model_indexes_auth]
-      # before_filter :authenticate_refinery_user!, :only => [:sync_model_auth, :synchronizations_all, :create_record, :login, :update_user, :verify_user, :model_indexes_auth]
-      # FIXME: authenticate_refinery_user! should do this
-      # before_filter :fb_test, :only => [:sync_model_auth, :synchronizations_all, :create_record, :login, :update_user, :verify_user, :model_indexes_auth]
+      # before_filter :authenticate_refinery_user!, :only => [:sync_model_auth, :synchronizations_all, :create_record, :model_indexes_auth]
     
       rescue_from ::BadRequest, :with => :bad_request
       rescue_from ::RecordConflict, :with => :record_conflict
       rescue_from ::Forbidden, :with => :forbidden
       rescue_from ::Unauthorized, :with => :unauthorized
-
-      def fb_test
-        env['warden'].authenticate(:facebook, :basic)
-      end
 
       # FIXME: is this necessary?
       def devise_controller?
@@ -34,69 +28,6 @@ module Refinery
         # you can use meta fields from your model instead (e.g. browser_title)
         # by swapping @page for @synchronization in the line below:
         present(@page)
-      end
-
-      def login
-        unless current_refinery_user.nil? then render :json => current_refinery_user, :status => 200 else raise Unauthorized end
-      end
-
-      def register
-      
-        user = User.new(:username => params[:email], :email => params[:email], :password => params[:password], :password_confirmation => params[:password], :phone => params[:phone],
-            :first_name => params[:first_name], :last_name => params[:last_name], :verified => false, :verification_code => (Time.now.to_i/100 * rand(100) / 100000).to_i)
-        if user.save then
-          render :json => user
-        else
-          Rails.logger.info "User not saved properly"
-          error_str = ""
-          @user.errors.each_full { |msg| error_str = error_str+msg }
-          render :json => { :error => error_str }, :status => 409
-        end
-      end
-
-      def verify_user
-        unless current_refinery_user.nil? then
-            if params[:verification_code].nil? then
-              raise BadRequest
-            elsif current_refinery_user.verification_code == params[:verification_code].to_i then
-              current_refinery_user.verified = true
-              current_refinery_user.save
-              render :json => current_refinery_user, :status => 200
-            else
-              raise BadRequest
-            end
-        else
-          raise Unauthorized
-        end
-      end
-      
-      def update_user
-        oldPhone = ""
-        unless current_refinery_user.nil? then
-          unless params[:phone].nil? then
-            oldPhone = current_refinery_user.phone
-            current_refinery_user.phone = params[:phone]
-          end
-          unless params[:birthday].nil? then
-            current_refinery_user.birthday = params[:birthday]
-          end
-          unless params[:gender].nil? then
-            current_refinery_user.gender = params[:gender]
-          end
-          if current_refinery_user.save then
-            if params[:phone].present? and not params[:phone].eql?(oldPhone) then
-              sm = ::Refinery::Sms::Sm.create(:message => "Your verification code is: #{current_refinery_user.verification_code}", :to_number => params[:phone], :user_id => current_refinery_user.id)
-              Rails.logger.info "Sm created: " + sm.to_s
-              resp = sm.send_to_dst
-              Rails.logger.info "Sm sent: " + resp.body + ", #{sm.transaction_id}"
-            end
-            render :json => current_refinery_user, :status => 200
-          else
-            raise BadRequest
-          end
-        else
-          raise Unauthorized
-        end
       end
       
       def model_indexes
