@@ -18,14 +18,23 @@ module Refinery
           get "synchronizations.(:format)", :to => "Synchronizations::Synchronizations#synchronizations_all"
         end
         
-      Refinery::Core::Engine.routes.prepend do
+        Refinery::Core::Engine.routes.prepend do
           class ModelHasCreateMethod
             def self.matches?(request)
               return (::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).synchronizable? and
-                          ::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).creatable?)
+                          ::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).creatable? and
+                          not ::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).needs_authentication?)
+            end
+          end
+          class ModelHasCreateMethodWithAuth
+            def self.matches?(request)
+              return (::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).synchronizable? and
+                          ::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).creatable? and
+                          ::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).needs_authentication?)
             end
           end
           post ":model_name", :to => "Synchronizations::Synchronizations#create_record", :constraints => ModelHasCreateMethod
+          post ":model_name", :to => "Synchronizations::Synchronizations#create_record_auth", :constraints => ModelHasCreateMethod
         end
       
         Refinery::Core::Engine.routes.prepend do

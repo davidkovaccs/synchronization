@@ -4,7 +4,7 @@ module Refinery
     class SynchronizationsController < ::ApplicationController
      
       before_filter :check_model, :only => [:sync_model, :sync_model_auth, :create_record, :model_indexes, :model_indexes_auth]
-      # before_filter :authenticate_refinery_user!, :only => [:sync_model_auth, :synchronizations_all, :create_record, :model_indexes_auth]
+      before_filter :require_authentication, :only => [:sync_model_auth, :synchronizations_all, :create_record_auth, :model_indexes_auth]
     
       rescue_from ::BadRequest, :with => :bad_request
       rescue_from ::RecordConflict, :with => :record_conflict
@@ -44,13 +44,13 @@ module Refinery
       end
       
       def model_indexes_auth
-          if current_refinery_user.nil? then
+          if current_user.nil? then
             # FIXME: should never happen
             return render :json => "", :status => 401
           end
   
           if params[:updated_at].nil? then
-            @records = @model.find(:all, :conditions => ['user_id = ?', current_refinery_user.id], :select => "id").collect(&:id)
+            @records = @model.find_all_by_user_id(current_user.id).collect(&:id)
           end
           
           return respond_with_records @records
@@ -60,15 +60,17 @@ module Refinery
       # custom synchronization methods
       # FIXME: +1
       def sync_model_auth
-          if current_refinery_user.nil? then
+          if current_user.nil? then
             # FIXME: should never happen
             return render :json => "", :status => 401
           end
-  
+
+          Rails.logger.info "Current user: #{current_user.id.to_s} #{current_user.first_name}"
+
           if params[:updated_at].nil? then
-            @records = @model.find(:all, :conditions => ['user_id = ?', current_refinery_user.id])
+            @records = @model.find_all_by_user_id(current_user.id)
           else
-            @records = @model.find(:all, :conditions => ['updated_at > ? and user_id = ?', Time.parse(params[:updated_at])+1, current_refinery_user.id])
+            @records = @model.find_all_by_user_id(current_user.id).select { |ar| ar.updated_at > Time.parse(params[:updated_at])+1}
           end
           
           return respond_with_records @records
@@ -103,9 +105,10 @@ module Refinery
           Rails.logger.info "Obj that needs auth: #{obj_class.name}"
           obj = nil
           if params[:updated_at].nil? then
-            obj = obj_class.find(:first, :order => "updated_at DESC", :conditions => ['user_id = ?', current_refinery_user.id])
+            obj = obj_class.find_all_by_user_id(current_user.id).sort_by(&:updated_at).last
           else
-            obj = obj_class.find(:first, :order => "updated_at DESC", :conditions => ['updated_at > ? and user_id = ?', Time.parse(params[:updated_at])+1, current_refinery_user.id])
+            obj = obj_class.find_all_by_user_id(current_user.id).select(&:updated_at > Time.parse(params[:updated_at])+1).sort_by(&:updated_at).last
+            #obj = obj_class.find(:first, :order => "updated_at DESC", :conditions => ['updated_at > ? and user_id = ?', Time.parse(params[:updated_at])+1, current_user.id])
           end
           
           unless obj.nil? then
@@ -118,8 +121,8 @@ module Refinery
       
       # FIXME: +1
       def synchronizations_all
-        unless current_refinery_user.nil?
-          Rails.logger.info "User is authenticated! User id: #{current_refinery_user.id}"
+        unless current_user.nil?
+          Rails.logger.info "User is authenticated! User id: #{current_user.id}"
           return synchronizations_all_auth
         end
         Rails.logger.info "User is NOT authenticated!"
@@ -133,18 +136,23 @@ module Refinery
         respond_with_records @records    
       end
 
+      def create_record_auth
+        if current_user.nil? then
+          # FIXME: should never happen
+          return render :json => "", :status => 401
+        end
+
+        create_record
+      end
+
       def create_record
-        #if current_refinery_user.nil? then
-        #  # FIXME: should never happen
-        #  return render :json => "", :status => 401
-        #end
         
         Rails.logger.info "Params: " + params.to_s
 
-        Rails.logger.info "Adding user_id to params, " + current_refinery_user.nil?.to_s + ", " + @model.new.respond_to?(:user_id).to_s
-        if @model.new.respond_to?(:user_id) and not current_refinery_user.nil? then
-          Rails.logger.info "Adding user_id to params" + current_refinery_user.id.to_s
-          params[:user_id] = current_refinery_user.id
+        Rails.logger.info "Adding user_id to params, " + current_user.nil?.to_s + ", " + @model.new.respond_to?(:user_id).to_s
+        if @model.new.respond_to?(:user_id) and not current_user.nil? then
+          Rails.logger.info "Adding user_id to params" + current_user.id.to_s
+          params[:user_id] = current_user.id
         end
 
         params.delete(:controller)
