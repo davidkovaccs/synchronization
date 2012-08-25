@@ -71,36 +71,73 @@ module Refinery
       end
       
       def update_user
-        oldPhone = ""
-        unless current_refinery_user.nil? then
-          unless params[:phone].nil? then
-            current_refinery_user.phone = params[:phone]
-            current_refinery_user.verified = false
-            current_refinery_user.verification_code = (Time.now.to_i/100 * rand(100) / 100000).to_i
-          end
-          unless params[:birthday].nil? then
-            current_refinery_user.birthday = params[:birthday]
-          end
-          unless params[:gender].nil? then
-            if params[:gender].eql?("male") then
-              current_refinery_user.gender = true
-            else
-              current_refinery_user.gender = false
-            end
-          end
-          if current_refinery_user.save then
-            if params[:phone].present? then
-              sm = ::Refinery::Sms::Sm.create(:message => "Your verification code is: #{current_refinery_user.verification_code}", :to_number => params[:phone], :user_id => current_refinery_user.id)
-              Rails.logger.info "Sm created: " + sm.to_s
-              resp = sm.send_to_dst
-              Rails.logger.info "Sm sent: " + resp.body + ", #{sm.transaction_id}"
-            end
-            render :json => current_refinery_user, :status => 200
-          else
+        if current_refinery_user.nil? then
+          raise Unauthorized
+        end
+
+        # UPDATE PHONE
+        unless params[:phone].nil? then
+          if params[:phone].length != 10 then
+            Rails.logger.info "Phone length is  not 10: #{params[:phone]}"
             raise BadRequest
           end
+          current_refinery_user.phone = params[:phone]
+          current_refinery_user.verified = false
+          current_refinery_user.verification_code = (Time.now.to_i/100 * rand(100) / 100000).to_i
+        end
+
+        # UPDATE NAME
+        unless params[:name].nil? then
+          first_name = params[:name].split(" ").first
+          last_name = params[:name].split(" ").second
+          if first_name.nil? or last_name.nil? then
+            Rails.logger.info "No first_name: #{first_name} or last name: #{last_name} where name: #{params[:name]}"
+            raise BadRequest
+          end
+          current_refinery_user.first_name = first_name
+          current_refinery_user.last_name = last_name
+        end
+
+        # UPDATE EMAIL
+        unless params[:email].nil? then
+          if not params[:email] =~ /\A[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]+\z/ then
+            Rails.logger.info "Please specify a correct email address"
+            raise BadRequest
+          end
+          user_with_this_email = ::Refinery::User.find_by_email(params[:email])
+          if not user_with_this_email.nil? and user_with_this_email != current_refinery_user then
+            Rails.logger.info "There is another user with this email address"
+            raise BadRequest
+          end
+          current_refinery_user.email = params[:email]
+        end
+
+        # UPDATE BIRTHDAY
+        unless params[:birthday].nil? then
+          current_refinery_user.birthday = params[:birthday]
+        end
+
+        # UPDATE GENDER
+        unless params[:gender].nil? then
+          if params[:gender].eql?("male") then
+            current_refinery_user.gender = true
+          else
+            current_refinery_user.gender = false
+          end
+        end
+
+        # TRY TO SAVE THE USER
+        if current_refinery_user.save then
+          if params[:phone].present? then
+            sm = ::Refinery::Sms::Sm.create(:message => "Your verification code is: #{current_refinery_user.verification_code}", :to_number => params[:phone], :user_id => current_refinery_user.id)
+            Rails.logger.info "Sm created: " + sm.to_s
+            resp = sm.send_to_dst
+            Rails.logger.info "Sm sent: " + resp.body + ", #{sm.transaction_id}"
+          end
+          render :json => current_refinery_user, :status => 200
         else
-          raise Unauthorized
+          Rails.logger.info "Can't save user: #{current_refinery_user.errors.full_messages}"
+          raise BadRequest
         end
       end
       
