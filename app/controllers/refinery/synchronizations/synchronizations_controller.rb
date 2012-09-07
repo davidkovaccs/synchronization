@@ -43,7 +43,7 @@ module Refinery
       def register
       
         user = User.new(:username => params[:email], :email => params[:email], :password => params[:password], :password_confirmation => params[:password], :phone => params[:phone],
-            :first_name => params[:first_name], :last_name => params[:last_name], :verified => false, :verification_code => (Time.now.to_i/100 * rand(100) / 100000).to_i)
+            :first_name => params[:first_name], :last_name => params[:last_name], :timeline_share => "true", :verified => false, :verification_code => (Time.now.to_i/100 * rand(100) / 100000).to_i)
         if user.save then
           render :json => user
         else
@@ -115,6 +115,11 @@ module Refinery
         # UPDATE BIRTHDAY
         unless params[:birthday].nil? then
           current_refinery_user.birthday = params[:birthday]
+        end
+        
+        # UPDATE TIMELINE SHARE
+        unless params[:timeline_share].nil? then
+          current_refinery_user.timeline_share = params[:timeline_share]
         end
 
         # UPDATE GENDER
