@@ -41,7 +41,6 @@ module Refinery
       end
 
       def register
-      
         user = User.new(:username => params[:email], :email => params[:email], :password => params[:password], :password_confirmation => params[:password], :phone => params[:phone],
             :first_name => params[:first_name], :last_name => params[:last_name], :timeline_share => "true", :verified => false, :verification_code => (Time.now.to_i/100 * rand(100) / 100000).to_i)
         if user.save then
@@ -99,18 +98,18 @@ module Refinery
         end
 
         # UPDATE EMAIL
-        unless params[:email].nil? then
-          if not params[:email] =~ /\A[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]+\z/ then
-            Rails.logger.info "Please specify a correct email address"
-            raise BadRequest
-          end
-          user_with_this_email = ::Refinery::User.find_by_email(params[:email])
-          if not user_with_this_email.nil? and user_with_this_email != current_refinery_user then
-            Rails.logger.info "There is another user with this email address"
-            raise BadRequest
-          end
-          current_refinery_user.email = params[:email]
-        end
+        #unless params[:email].nil? then
+        #  if not params[:email] =~ /\A[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]+\z/ then
+        #    Rails.logger.info "Please specify a correct email address"
+        #    raise BadRequest
+        #  end
+        #  user_with_this_email = ::Refinery::User.find_by_email(params[:email])
+        #  if not user_with_this_email.nil? and user_with_this_email != current_refinery_user then
+        #    Rails.logger.info "There is another user with this email address"
+        #    raise BadRequest
+        #  end
+        #  current_refinery_user.email = params[:email]
+        #end
 
         # UPDATE BIRTHDAY
         unless params[:birthday].nil? then
