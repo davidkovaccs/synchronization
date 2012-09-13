@@ -4,7 +4,7 @@ module Refinery
     class SynchronizationsController < ::ApplicationController
      
       before_filter :check_model, :only => [:sync_model, :sync_model_auth, :create_record, :model_indexes, :model_indexes_auth]
-      before_filter :require_authentication, :only => [:sync_model_auth, :synchronizations_all, :create_record_auth, :model_indexes_auth]
+      #before_filter :require_authentication, :only => [:sync_model_auth, :synchronizations_all, :create_record_auth, :model_indexes_auth]
     
       rescue_from ::BadRequest, :with => :bad_request
       rescue_from ::RecordConflict, :with => :record_conflict
@@ -121,11 +121,11 @@ module Refinery
       
       # FIXME: +1
       def synchronizations_all
-        unless current_user.nil?
-          Rails.logger.info "User is authenticated! User id: #{current_user.id}"
-          return synchronizations_all_auth
-        end
-        Rails.logger.info "User is NOT authenticated!"
+        #unless current_user.nil?
+        #  Rails.logger.info "User is authenticated! User id: #{current_user.id}"
+        #  return synchronizations_all_auth
+        #end
+        #Rails.logger.info "User is NOT authenticated!"
 
         if params[:updated_at].nil? then
           @records = Synchronization.all
