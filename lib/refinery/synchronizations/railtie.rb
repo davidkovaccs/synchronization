@@ -15,6 +15,7 @@ module Refinery
           #authenticated do
           #  get "synchronizations.(:format)", :to => "Synchronizations::Synchronizations#synchronizations_all_auth"
           #end
+	  root :to => "NewsItems::NewsItems#index"
           get "synchronizations.(:format)", :to => "Synchronizations::Synchronizations#synchronizations_all"
         end
         
