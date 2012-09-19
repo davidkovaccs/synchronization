@@ -25,7 +25,7 @@ module Refinery
         def update_synchronization_record_update
           syncObj = Synchronization.where(:model_name => getModelName, :method_name => "update").first
     
-          if (! syncObj.nil?)
+          if not syncObj.nil? then
             syncObj.touch
             if syncObj.model_updated_at < self.updated_at then
               syncObj.model_updated_at = self.updated_at
