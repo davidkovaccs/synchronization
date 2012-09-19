@@ -11,7 +11,7 @@ module Refinery
   module Synchronizations
     module ActiveRecord
       module Synchronizable
-        $objects_needs_auth = Array.new
+        $objects_needs_auth = Set.new
         
         def self.included(base)
           base.extend(ClassMethods)
