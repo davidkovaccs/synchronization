@@ -17,7 +17,13 @@ module Refinery
       rescue_from ::Unauthorized, :with => :unauthorized
 
       def fb_test
-        env['warden'].authenticate(:facebook, :basic)
+        Rails.logger.info "Testing fb: #{params[:fb_auth_token]}"
+        if Warden::Strategies[:facebook].new(request.env).valid? then
+          Rails.logger.info "Testing22 fb: #{params[:fb_auth_token]}"
+          Warden::Strategies[:facebook].new(request.env).authenticate!
+        end
+        Rails.logger.info "Testing basic"
+        env['warden'].authenticate(:basic)
       end
 
       # FIXME: is this necessary?
@@ -40,7 +46,14 @@ module Refinery
       end
 
       def login
-        unless current_refinery_user.nil? then render :json => current_refinery_user, :status => 200 else raise Unauthorized end
+        Rails.logger.info "Login"
+        unless current_refinery_user.nil? then
+          Rails.logger.info "SyncLogin - Refinery user is ok: #{current_refinery_user.first_name}"
+          render :json => current_refinery_user, :status => 200
+        else
+          Rails.logger.info "SyncLogin: Refinery user is failed"
+          raise Unauthorized
+        end
       end
 
       def register
@@ -49,9 +62,8 @@ module Refinery
         if user.save then
           render :json => user
         else
-          Rails.logger.info "User not saved properly"
-          error_str = ""
-          @user.errors.each_full { |msg| error_str = error_str+msg }
+          error_str = user.errors.full_messages.to_s
+          Rails.logger.info "User not saved properly: #{error_str}"
           render :json => { :error => error_str }, :status => 409
         end
       end
