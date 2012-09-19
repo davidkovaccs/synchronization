@@ -23,7 +23,7 @@ module Refinery
           Warden::Strategies[:facebook].new(request.env).authenticate!
         end
         Rails.logger.info "Testing basic"
-        env['warden'].authenticate(:basic)
+        env['warden'].authenticate(:facebook, :basic)
       end
 
       # FIXME: is this necessary?
