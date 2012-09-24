@@ -4,7 +4,8 @@ module Refinery
     class SynchronizationsController < ::ApplicationController
      
       before_filter :check_model, :only => [:sync_model, :sync_model_auth, :create_record, :model_indexes, :model_indexes_auth]
-      before_filter :require_authentication, :only => [:sync_model_auth, :synchronizations_all, :create_record_auth, :model_indexes_auth]
+      before_filter :require_authentication, :only => [:sync_model_auth, :create_record_auth, :model_indexes_auth]
+      before_filter :check_authentication, :only => [:synchronizations_all]
     
       rescue_from ::BadRequest, :with => :bad_request
       rescue_from ::RecordConflict, :with => :record_conflict
