@@ -160,7 +160,7 @@ module Refinery
         params.delete(:model_name)
         params.delete(:action)
         params.delete(:locale)
-        params.delete(:fb_auth_token)
+        params.delete(:fb_access_token)
         Rails.logger.info "Creating record with params: " + params.to_s
         
         record = @model.create_record(params)
