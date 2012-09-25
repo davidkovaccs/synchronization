@@ -19,12 +19,16 @@ Warden::Strategies.add(:basic) do
     end
     unless user.nil?
       if (email == user.username || email == user.email) && user.valid_password?(password) then
-        Rails.logger.info "User authentication succeeded!"
+        Rails.logger.info "User authentication succeeded!: #{user.email}"
         success!(user)
+        return user
       else
         Rails.logger.info "User authentication failed!"
         raise Unauthorized
       end
     end
+
+    Rails.logger.info "User authentication failed!"
+    raise Unauthorized
   end
 end

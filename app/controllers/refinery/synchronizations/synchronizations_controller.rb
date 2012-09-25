@@ -20,10 +20,20 @@ module Refinery
         Rails.logger.info "Testing fb: #{params[:fb_auth_token]}"
         if Warden::Strategies[:facebook].new(request.env).valid? then
           Rails.logger.info "Testing22 fb: #{params[:fb_auth_token]}"
-          Warden::Strategies[:facebook].new(request.env).authenticate!
+          current_refinery_user = Warden::Strategies[:facebook].new(request.env).authenticate!
+          sign_in(current_refinery_user)
+          Rails.logger.info "Testing basic-1: #{current_refinery_user.first_name}"
+        elsif Warden::Strategies[:basic].new(request.env).valid? then
+          Rails.logger.info "Testing basic"
+          current_refinery_user = Warden::Strategies[:basic].new(request.env).authenticate!
+          sign_in(current_refinery_user)
+          Rails.logger.info "Testing basic-2: #{current_refinery_user.first_name}"
         end
-        Rails.logger.info "Testing basic"
-        env['warden'].authenticate(:facebook, :basic)
+        if not current_refinery_user.nil?
+          Rails.logger.info "Testing basic0: #{current_refinery_user.first_name}"
+        end
+        Rails.logger.info "Testing basic end"
+        #env['warden'].authenticate(:facebook, :basic)
       end
 
       # FIXME: is this necessary?
