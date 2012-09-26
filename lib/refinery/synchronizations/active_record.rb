@@ -79,7 +79,8 @@ module Refinery
         module ClassMethods
           
           def create_record(params)
-            create(params)
+            Rails.logger.info "Creating record"
+            self.create(params)
           end
           
           def update_record(params)

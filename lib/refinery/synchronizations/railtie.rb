@@ -35,7 +35,7 @@ module Refinery
             end
           end
           post ":model_name", :to => "Synchronizations::Synchronizations#create_record", :constraints => ModelHasCreateMethod
-          post ":model_name", :to => "Synchronizations::Synchronizations#create_record_auth", :constraints => ModelHasCreateMethod
+          post ":model_name", :to => "Synchronizations::Synchronizations#create_record_auth", :constraints => ModelHasCreateMethodWithAuth
         end
       
         Refinery::Core::Engine.routes.prepend do

@@ -3,7 +3,7 @@ module Refinery
   module Synchronizations
     class SynchronizationsController < ::ApplicationController
      
-      before_filter :check_model, :only => [:sync_model, :sync_model_auth, :create_record, :model_indexes, :model_indexes_auth]
+      before_filter :check_model, :only => [:sync_model, :sync_model_auth, :create_record, :create_record_auth, :model_indexes, :model_indexes_auth]
       before_filter :require_authentication, :only => [:sync_model_auth, :create_record_auth, :model_indexes_auth]
       before_filter :check_authentication, :only => [:synchronizations_all]
     
@@ -161,6 +161,7 @@ module Refinery
         params.delete(:action)
         params.delete(:locale)
         params.delete(:fb_access_token)
+        params.delete(:fb_identifier)
         Rails.logger.info "Creating record with params: " + params.to_s
         
         record = @model.create_record(params)

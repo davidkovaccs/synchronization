@@ -13,7 +13,6 @@ module Refinery
       validates :model_name, :presence => true
       validates :method_name, :presence => true
       validates :model_updated_at, :presence => true
-
     end
   end
 end
