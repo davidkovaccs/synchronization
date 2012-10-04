@@ -2,6 +2,7 @@ Refinery::Core::Engine.routes.append do
 
   namespace :synchronizations, :path => '' do
     get "synchronizations/login" => "synchronizations#login"
+    post "synchronizations/register_anonymously" => "synchronizations#register_anonymously"
     post "me/verify" => "synchronizations#verify_user"
     get "me" => "synchronizations#login"
     post "synchronizations/register" => "synchronizations#register"

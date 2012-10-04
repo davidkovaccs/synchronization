@@ -20,14 +20,17 @@ module Refinery
         Rails.logger.info "Testing fb: #{params[:fb_auth_token]}"
         if Warden::Strategies[:facebook].new(request.env).valid? then
           Rails.logger.info "Testing22 fb: #{params[:fb_auth_token]}"
-          current_refinery_user = Warden::Strategies[:facebook].new(request.env).authenticate!
-          sign_in(current_refinery_user)
-          Rails.logger.info "Testing basic-1: #{current_refinery_user.first_name}"
-        elsif Warden::Strategies[:basic].new(request.env).valid? then
-          Rails.logger.info "Testing basic"
-          current_refinery_user = Warden::Strategies[:basic].new(request.env).authenticate!
-          sign_in(current_refinery_user)
-          Rails.logger.info "Testing basic-2: #{current_refinery_user.first_name}"
+#          current_refinery_user = Warden::Strategies[:facebook].new(request.env).authenticate!
+#          sign_in(current_refinery_user)
+#          Rails.logger.info "Testing basic-1: #{current_refinery_user.first_name}"
+#        elsif Warden::Strategies[:basic].new(request.env).valid? then
+#          Rails.logger.info "Testing basic"
+#          current_refinery_user = Warden::Strategies[:basic].new(request.env).authenticate!
+#          sign_in(current_refinery_user)
+#          Rails.logger.info "Testing basic-2: #{current_refinery_user.first_name}"
+          Warden::Strategies[:facebook].new(request.env).authenticate!
+          env['warden'].authenticate(:facebook)
+          return
         end
         if not current_refinery_user.nil?
           Rails.logger.info "Testing basic0: #{current_refinery_user.first_name}"
@@ -67,8 +70,38 @@ module Refinery
       end
 
       def register
-        user = User.new(:username => params[:email], :email => params[:email], :password => params[:password], :password_confirmation => params[:password], :phone => params[:phone],
-            :first_name => params[:first_name], :last_name => params[:last_name], :timeline_share => "true", :verified => false, :verification_code => rand(899999)+100000)
+        user = env['warden'].authenticate(:basic)
+        if user.nil? then
+          Rails.logger.info "User with basic auth is nil"
+          raise Unauthorized
+        end
+
+        user.username = params[:email]
+        user.email = params[:email]
+        user.password = params[:password]
+        user.password_confirmation = params[:password]
+        user.phone = params[:phone]
+        user.first_name = params[:first_name]
+        user.last_name = params[:last_name]
+        user.timeline_share = "true"
+        user.verified = false
+        user.verification_code = rand(899999)+100000
+        user.anonymous = false
+
+        if user.save then
+          render :json => user
+        else
+          error_str = user.errors.full_messages.to_s
+          Rails.logger.info "User not saved properly: #{error_str}"
+          render :json => { :error => error_str }, :status => 409
+        end
+        #user = User.new(:username => params[:email], :email => params[:email], :password => params[:password], :password_confirmation => params[:password], :phone => params[:phone],
+        #    :first_name => params[:first_name], :last_name => params[:last_name], :timeline_share => "true", :verified => false, :verification_code => rand(899999)+100000, :anonymous => false)
+      end
+
+      def register_anonymously
+        user = User.new(:username => params[:email], :email => params[:email], :password => params[:password], :password_confirmation => params[:password],
+            :first_name => params[:first_name], :last_name => params[:last_name], :timeline_share => "true", :verified => false, :anonymous => true)
         if user.save then
           render :json => user
         else
