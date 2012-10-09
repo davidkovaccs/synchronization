@@ -173,10 +173,11 @@ module Refinery
 
         # UPDATE GENDER
         unless params[:gender].nil? then
+          Rails.logger.info "Gender is: '#{params[:gender]}'"
           if params[:gender].eql?("male") then
-            current_refinery_user.gender = true
+            current_refinery_user.gender = "male"
           else
-            current_refinery_user.gender = false
+            current_refinery_user.gender = "female"
           end
         end
 
