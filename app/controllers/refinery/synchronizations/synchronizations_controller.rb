@@ -133,6 +133,12 @@ module Refinery
           current_refinery_user.phone = params[:phone]
           current_refinery_user.verified = false
           current_refinery_user.verification_code = rand(899999)+100000
+
+          user_with_this_phone = ::Refinery::User.find_by_phone(params[:phone])
+          if not user_with_this_phone.nil? and current_refinery_user != user_with_this_phone then
+            Rails.logger.info "There is already user with the same phone number: #{params[:phone]}"
+            raise RecordConflict
+          end
         end
 
         # UPDATE NAME
