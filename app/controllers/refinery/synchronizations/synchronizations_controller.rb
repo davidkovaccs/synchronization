@@ -65,7 +65,23 @@ module Refinery
         user = env['warden'].authenticate(:basic)
         if user.nil? then
           Rails.logger.info "User with basic auth is nil"
-          raise Unauthorized
+          random_password = Digest::SHA1.hexdigest("--#{Time.now.to_s}--#{params[:email]}--#{params[:phone]}--")[0,10]
+          user = ::Refinery::User.new
+          user.anonymous = true
+          user.password = random_password
+          user.password_confirmation = random_password
+        end
+        
+        user_with_this_phone = ::Refinery::User.find_by_phone(params[:phone])
+        if not user_with_this_phone.nil? and user_with_this_phone != user then
+          Rails.logger.info "There is already user with the same phone number: #{params[:phone]}"
+          raise RecordConflict.new("phone")
+        end
+
+        user_with_this_email = ::Refinery::User.find_by_email(params[:email])
+        if not user_with_this_email.nil? and user_with_this_email != user then
+          Rails.logger.info "There is another user with this email address"
+          raise RecordConflict.new("email")
         end
 
         user.username = params[:email]
@@ -137,7 +153,7 @@ module Refinery
           user_with_this_phone = ::Refinery::User.find_by_phone(params[:phone])
           if not user_with_this_phone.nil? and current_refinery_user != user_with_this_phone then
             Rails.logger.info "There is already user with the same phone number: #{params[:phone]}"
-            raise RecordConflict
+            raise RecordConflict.new("phone")
           end
         end
 
