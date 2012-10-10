@@ -61,6 +61,29 @@ module Refinery
         end
       end
 
+      def forgot_password
+        user = ::Refinery::User.find_by_phone(params[:phone])
+        if user.nil? then
+          Rails.logger.info "There is no user with the same phone number: #{params[:phone]}"
+          raise BadRequest.new("phone")
+        end
+
+        if not user.facebook.nil? then
+          sm = ::Refinery::Sms::Sm.create(:message => "You've registered with facebook. Log in with your facebook credentials.", :to_number => params[:phone], :user_id => user.id)
+          resp = sm.send_to_dst
+          Rails.logger.info "Sm created: #{sm.message}"
+        else
+          new_password = Digest::SHA1.hexdigest("--#{Time.now.to_s}--#{user.email}--#{user.phone}--")[0,8]
+          user.password = new_password
+          user.password_confirmation = new_password
+          user.save
+          sm = ::Refinery::Sms::Sm.create(:message => "Your email address is: #{user.email}, your new password is: #{new_password}", :to_number => params[:phone], :user_id => user.id)
+          Rails.logger.info "Sm created: #{sm.message}"
+        end
+            
+        render :json => "", :status => 200
+      end
+
       def register
         user = env['warden'].authenticate(:basic)
         if user.nil? then
@@ -144,7 +167,7 @@ module Refinery
         unless params[:phone].nil? then
           if params[:phone].length != 10 then
             Rails.logger.info "Phone length is  not 10: #{params[:phone]}"
-            raise BadRequest
+            raise BadRequest.new("phone_length")
           end
           current_refinery_user.phone = params[:phone]
           current_refinery_user.verified = false

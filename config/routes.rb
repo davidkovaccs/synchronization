@@ -4,6 +4,7 @@ Refinery::Core::Engine.routes.append do
     get "synchronizations/login" => "synchronizations#login"
     post "synchronizations/register_anonymously" => "synchronizations#register_anonymously"
     post "me/verify" => "synchronizations#verify_user"
+    post "me/forgot_password" => "synchronizations#forgot_password"
     get "me" => "synchronizations#login"
     post "synchronizations/register" => "synchronizations#register"
     put "me" => "synchronizations#update_user"

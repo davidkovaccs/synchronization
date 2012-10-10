@@ -1,4 +1,9 @@
-class BadRequest < StandardError; end
+class BadRequest < StandardError
+  attr :why
+  def initialize(p_why)
+    @why = p_why
+  end
+end
 
 class Unauthorized < StandardError; end
 
