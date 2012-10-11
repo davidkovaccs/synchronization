@@ -69,7 +69,7 @@ module Refinery
         end
 
         if not user.facebook.nil? then
-          sm = ::Refinery::Sms::Sm.create(:message => "You've registered with facebook. Log in with your facebook credentials.", :to_number => params[:phone], :user_id => user.id)
+          sm = ::Refinery::Sms::Sm.create(:message => "You've registered with fcaebook. Log in with your facebook credentials.", :to_number => params[:phone], :user_id => user.id)
           resp = sm.send_to_dst
           Rails.logger.info "Sm created: #{sm.message}"
         else
