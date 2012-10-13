@@ -71,15 +71,19 @@ module Refinery
         if not user.facebook.nil? then
           sm = ::Refinery::Sms::Sm.create(:message => "You've registered with fcaebook. Log in with your facebook credentials.", :to_number => params[:phone], :user_id => user.id)
           resp = sm.send_to_dst
-          Rails.logger.info "Sm created: #{sm.message}"
+          Rails.logger.info "Sm created with message: #{sm.message}"
         else
           new_password = Digest::SHA1.hexdigest("--#{Time.now.to_s}--#{user.email}--#{user.phone}--")[0,8]
           user.password = new_password
           user.password_confirmation = new_password
           user.save
           sm = ::Refinery::Sms::Sm.create(:message => "Your email address is: #{user.email}, your new password is: #{new_password}", :to_number => params[:phone], :user_id => user.id)
-          Rails.logger.info "Sm created: #{sm.message}"
+          Rails.logger.info "Sm created with message: #{sm.message}"
         end
+        
+        Rails.logger.info "Sm created: " + sm.to_s
+        resp = sm.send_to_dst
+        Rails.logger.info "Sm sent: " + resp.body + ", #{sm.transaction_id}"
             
         render :json => "", :status => 200
       end
