@@ -89,6 +89,8 @@ module Refinery
       end
 
       def register
+        params[:email] = params[:email].downcase
+        
         user = env['warden'].authenticate(:basic)
         if user.nil? then
           Rails.logger.info "User with basic auth is nil"
