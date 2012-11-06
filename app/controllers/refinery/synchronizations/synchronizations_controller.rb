@@ -277,18 +277,23 @@ module Refinery
       # custom synchronization methods
       # FIXME: +1
       def sync_model_auth
+          Rails.logger.info "Sync model auth called: #{@model}"
           if current_refinery_user.nil? then
             # FIXME: should never happen
+            Rails.logger.info "Refinery user is nil"
             return render :json => "", :status => 401
           end
   
+          Rails.logger.info "Updated_at adding"
           if params[:updated_at].nil? then
             @records = @model.find(:all, :conditions => ['user_id = ?', current_refinery_user.id])
           else
             @records = @model.find(:all, :conditions => ['updated_at > ? and user_id = ?', Time.parse(params[:updated_at])+1, current_refinery_user.id])
           end
           
-          return respond_with_records @records
+          Rails.logger.info "Respond with records: #{@records.to_json}"
+          
+          respond_with_records @records
       end
   
       # FIXME: +1
@@ -318,7 +323,7 @@ module Refinery
 
         # FIXME: HACK
         ::Refinery::CollectedActivityitems::CollectedActivityitem.first
-        ::Refinery::RedeemedItems::RedeemedItem.first
+        ::Refinery::GiftCards::GiftCard.first
         ::Refinery::Referrals::Referral.first
         ::Refinery::Signups::Signup.first
         ::Refinery::TeamMembers::TeamMember.first
@@ -334,6 +339,12 @@ module Refinery
           end
           
           unless obj.nil? then
+            ## APIV10
+            if obj_class.name.split('::').last.eql?("GiftCard") then
+              new_rec = Synchronization.new(:method_name => "update", :model_name => "RedeemedItem", :model_updated_at => obj.updated_at, :updated_at => obj.updated_at)
+              @records << new_rec
+            end
+
             new_rec = Synchronization.new(:method_name => "update", :model_name => obj_class.name.split('::').last, :model_updated_at => obj.updated_at, :updated_at => obj.updated_at)
             new_rec.id = generate_model_id(obj_class.name, current_refinery_user.id, true)
             @records << new_rec
@@ -421,6 +432,7 @@ module Refinery
       end
       
       def check_model
+        Rails.logger.info "Checking model!!"
         model_name = params[:model_name]
         Rails.logger.info "Checking model: #{params[:model_name]}, params: #{params}"
 
@@ -437,6 +449,11 @@ module Refinery
         model_class = "::Refinery::" + model_name.pluralize + "::" + model_name
         
         Rails.logger.info "ASDF MODEL NAME: " + model_class.to_s
+        if not Refinery.const_defined?(model_name.pluralize)
+          Rails.logger.info "Model Class is not defined: #{model_class}"
+          return nil
+        end
+        
         Rails.logger.info "Syncable: " + model_class.constantize.synchronizable?.to_s
         Rails.logger.info "Authable: " + model_class.constantize.needs_authentication?.to_s
         return model_class.constantize

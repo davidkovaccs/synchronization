@@ -6,22 +6,23 @@ module Refinery
 
       initializer 'refinerycms-synchronizations' do |app|
 
-        ActiveSupport.on_load(:active_record) do
-          require 'refinery/synchronizations/active_record'
-          ::ActiveRecord::Base.send(:include, ActiveRecord::Synchronizable)
-        end
-        
-        Refinery::Core::Engine.routes.prepend do
-          #authenticated do
-          #  get "synchronizations.(:format)", :to => "Synchronizations::Synchronizations#synchronizations_all_auth"
-          #end
-          get "synchronizations.(:format)", :to => "Synchronizations::Synchronizations#synchronizations_all"
-        end
+      ActiveSupport.on_load(:active_record) do
+        require 'refinery/synchronizations/active_record'
+        ::ActiveRecord::Base.send(:include, ActiveRecord::Synchronizable)
+      end
         
       Refinery::Core::Engine.routes.prepend do
+        #authenticated do
+        #  get "synchronizations.(:format)", :to => "Synchronizations::Synchronizations#synchronizations_all_auth"
+        #end
+        get "synchronizations.(:format)", :to => "Synchronizations::Synchronizations#synchronizations_all"
+      end
+        
+        Refinery::Core::Engine.routes.prepend do
           class ModelHasCreateMethod
             def self.matches?(request)
-              return (::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).synchronizable? and
+              return (not ::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).nil? and
+                          ::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).synchronizable? and
                           ::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).creatable?)
             end
           end
@@ -31,7 +32,8 @@ module Refinery
         Refinery::Core::Engine.routes.prepend do
           class SynchronizableAndNeedsAuthentication
             def self.matches?(request)
-              return (::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).synchronizable? and
+              return (not ::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).nil? and
+                          ::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).synchronizable? and
                           ::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).needs_authentication?)
             end
           end
@@ -42,7 +44,8 @@ module Refinery
         Refinery::Core::Engine.routes.prepend do
           class Synchronizable
             def self.matches?(request)
-              return ::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).synchronizable?
+              return (not ::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).nil? and
+                      ::Refinery::Synchronizations::SynchronizationsController.get_model(request.params[:model_name]).synchronizable?)
             end
           end
           
