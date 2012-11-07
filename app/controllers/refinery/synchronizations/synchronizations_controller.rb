@@ -4,6 +4,15 @@ require "backports/1.8.7"
 
 module Refinery
   module Synchronizations
+    class UserMailer < ActionMailer::Base
+      default :from => "no-reply@toplamax.com"
+
+      def welcome_email(user)
+        @user = user
+        mail(:to => user.email, :subject => "Welcome to My Awesome Site", :body => "Hello guys")
+      end
+    end
+    
     class SynchronizationsController < ::ApplicationController
      
       before_filter :check_model, :only => [:sync_model, :sync_model_auth, :create_record, :model_indexes, :model_indexes_auth]
@@ -125,7 +134,12 @@ module Refinery
         user.verification_code = rand(899999)+100000
         user.anonymous = false
 
-        if user.save then
+        if user.valid? then
+          
+          UserMailer.welcome_email(user).deliver
+          
+          user.save
+          
           render :json => user
         else
           error_str = user.errors.full_messages.to_s
