@@ -133,6 +133,7 @@ module Refinery
         user.verified = false
         user.verification_code = rand(899999)+100000
         user.anonymous = false
+        user.manual_signup = true
 
         if user.valid? then
           
@@ -152,7 +153,7 @@ module Refinery
 
       def register_anonymously
         user = User.new(:username => params[:email], :email => params[:email], :password => params[:password], :password_confirmation => params[:password],
-            :first_name => params[:first_name], :last_name => params[:last_name], :timeline_share => "true", :verified => false, :anonymous => true)
+            :first_name => params[:first_name], :last_name => params[:last_name], :timeline_share => "true", :verified => false, :anonymous => true, :manual_signup => true)
         if user.save then
           render :json => user
         else
