@@ -335,6 +335,8 @@ module Refinery
         else
           @records = Synchronization.find(:all, :conditions => ['updated_at > ?', Time.parse(params[:updated_at])+1])
         end
+        
+        ::Refinery::LogUsages::LogUsage.create(:path => "synchronizations", :user_id => current_refinery_user.id)
 
         # FIXME: HACK
         ::Refinery::CollectedActivityitems::CollectedActivityitem.first
