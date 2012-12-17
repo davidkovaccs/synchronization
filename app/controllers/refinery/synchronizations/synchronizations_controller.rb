@@ -137,7 +137,7 @@ module Refinery
 
         if user.valid? then
           
-          UserMailer.welcome_email(user).deliver
+          #UserMailer.welcome_email(user).deliver
           
           user.save
           

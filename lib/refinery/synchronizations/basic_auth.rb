@@ -12,7 +12,6 @@ Warden::Strategies.add(:basic) do
     email = auth.credentials.first
     password = auth.credentials.last
 
-
     Rails.logger.info "Authenticate user with email: #{email} and password: #{password}, anon_user: #{params[:anonymous_user]}"
     user = ::Refinery::User.find_by_email(email)
     if user.nil?
