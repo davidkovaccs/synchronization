@@ -50,12 +50,16 @@ module Refinery
           end
           
           syncObjUpdate = Synchronization.where(:model_name => getModelName, :method_name => "update").first
+          Rails.logger.info "Sync updates"
           if (! syncObjUpdate.nil? and syncObjUpdate.model_updated_at.eql?(self.updated_at))
+            Rails.logger.info "Setting it found"
             newUpdatedAtObj = self.class.find(:first, :conditions => ["id != ?", self.id], :order => "updated_at DESC")
             if not newUpdatedAtObj.nil? then
+              Rails.logger.info "Setting it to other"
               syncObjUpdate.model_updated_at = newUpdatedAtObj.updated_at
               syncObjUpdate.save
             else
+              Rails.logger.info "Setting it to nil"
               syncObjUpdate.model_updated_at = "1980-05-20T12:19:07Z".to_datetime
               syncObjUpdate.save
             end
