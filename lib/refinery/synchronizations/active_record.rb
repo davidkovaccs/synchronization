@@ -55,6 +55,9 @@ module Refinery
             if not newUpdatedAtObj.nil? then
               syncObjUpdate.model_updated_at = newUpdatedAtObj.updated_at
               syncObjUpdate.save
+            else
+              syncObjUpdate.model_updated_at = nil
+              syncObjUpdate.save
             end
           end
     
