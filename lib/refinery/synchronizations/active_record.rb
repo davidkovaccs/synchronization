@@ -56,7 +56,7 @@ module Refinery
               syncObjUpdate.model_updated_at = newUpdatedAtObj.updated_at
               syncObjUpdate.save
             else
-              syncObjUpdate.model_updated_at = nil
+              syncObjUpdate.model_updated_at = "1980-05-20T12:19:07Z".to_datetime
               syncObjUpdate.save
             end
           end
