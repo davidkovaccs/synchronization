@@ -141,6 +141,22 @@ module Refinery
           
           user.save
           
+          signup = ::Refinery::Signups::Signup.create(:user_id => user.id, :name => "Sign up bonus", :points => 100)
+          ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => user.id, :activityitem_id => signup.activityitem_id, :collected_at => DateTime.now, :points => signup.points, :name => signup.name)
+          
+          invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["phone = ?", user.phone ])
+          if invitation.nil? then
+            invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["email = ?", user.email ])
+          end
+
+          if not invitation.nil? then
+            Rails.logger.info ("Invitation exists for phone: #{user.phone} with user_id: #{invitation.user_id}")
+            referral_act = ::Refinery::Referrals::Referral.create(:user_id => invitation.user_id, :referred_user_id => user.id, :name => "Referring " + user.name, :points => 100)
+            ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => invitation.user_id, :activityitem_id => referral_act.activityitem_id, :collected_at => DateTime.now, :points => referral_act.points, :name => referral_act.name)
+          else
+            Rails.logger.info ("Invitation does not exists for phone: #{user.phone}")
+          end
+          
           render :json => user
         else
           error_str = user.errors.full_messages.to_s
@@ -199,6 +215,17 @@ module Refinery
             Rails.logger.info "There is already user with the same phone number: #{params[:phone]}"
             raise RecordConflict.new("phone")
           end
+         
+          if ::Refinery::Referrals::Referral.find(:first, :conditions => ["referred_user_id = ?", current_refinery_user.id]).nil? then
+            Rails.logger.info("Search for phone: #{current_refinery_user.phone}")
+            invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["phone = ?", current_refinery_user.phone ])
+            
+            if not invitation.nil? then
+              referral_act = ::Refinery::Referrals::Referral.create(:user_id => invitation.user_id, :referred_user_id => current_refinery_user.id, :name => "Referring " + current_refinery_user.name, :points => 100)
+              ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => invitation.user_id, :activityitem_id => referral_act.activityitem_id, :collected_at => DateTime.now, :points => referral_act.points, :name => referral_act.name)
+            end
+          end
+         
         end
 
         # UPDATE NAME

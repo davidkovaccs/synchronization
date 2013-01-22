@@ -9,6 +9,11 @@ Warden::Strategies.add(:basic) do
   end
 
   def authenticate!
+    if not self.valid? then
+      Rails.logger.info "Credentials not valid"
+      raise Unauthorized
+    end
+    
     email = auth.credentials.first
     password = auth.credentials.last
 
