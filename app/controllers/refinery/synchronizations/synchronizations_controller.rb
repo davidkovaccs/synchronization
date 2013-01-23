@@ -78,9 +78,15 @@ module Refinery
         end
 
         if not user.facebook.nil? then
-          sm = ::Refinery::Sms::Sm.create(:message => "You've registered with fcaebook. Log in with your facebook credentials.", :to_number => params[:phone], :user_id => user.id)
-          resp = sm.send_to_dst
-          Rails.logger.info "Sm created with message: #{sm.message}"
+          sm = ::Refinery::Sms::Sm.create(:message => "You've registered with facebook. Log in with your facebook credentials.", :to_number => params[:phone], :user_id => user.id)
+          
+          # begin
+          #   Rails.logger.info "Sm created: " + sm.to_s
+          #   resp = sm.send_to_dst
+          #   Rails.logger.info "Sm sent: " + resp.body + ", #{sm.transaction_id}"
+          # rescue
+          #   Rails.logger.info "Sm sending failed..." + sm.to_s
+          # end
         else
           new_password = Digest::SHA1.hexdigest("--#{Time.now.to_s}--#{user.email}--#{user.phone}--")[0,8]
           user.password = new_password
@@ -90,9 +96,13 @@ module Refinery
           Rails.logger.info "Sm created with message: #{sm.message}"
         end
         
-        Rails.logger.info "Sm created: " + sm.to_s
-        resp = sm.send_to_dst
-        Rails.logger.info "Sm sent: " + resp.body + ", #{sm.transaction_id}"
+        begin
+          Rails.logger.info "Sm created: " + sm.to_s
+          resp = sm.send_to_dst
+          Rails.logger.info "Sm sent: " + resp.body + ", #{sm.transaction_id}"
+        rescue
+          Rails.logger.info "Sm sending failed..." + sm.to_s
+        end
             
         render :json => "", :status => 200
       end
@@ -141,7 +151,7 @@ module Refinery
           
           user.save
           
-          signup = ::Refinery::Signups::Signup.create(:user_id => user.id, :name => "Sign up bonus", :points => 100)
+          signup = ::Refinery::Signups::Signup.create(:user_id => user.id, :name => "Kayıt Olma Bonusu", :points => 100)
           ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => user.id, :activityitem_id => signup.activityitem_id, :collected_at => DateTime.now, :points => signup.points, :name => signup.name)
           
           invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["phone = ?", user.phone ])
@@ -278,9 +288,15 @@ module Refinery
         if current_refinery_user.save then
           if params[:phone].present? then
             sm = ::Refinery::Sms::Sm.create(:message => "Your verification code is: #{current_refinery_user.verification_code}", :to_number => params[:phone], :user_id => current_refinery_user.id)
-            Rails.logger.info "Sm created: " + sm.to_s
-            resp = sm.send_to_dst
-            Rails.logger.info "Sm sent: " + resp.body + ", #{sm.transaction_id}"
+            
+            begin
+              Rails.logger.info "Sm created: " + sm.to_s
+              resp = sm.send_to_dst
+              Rails.logger.info "Sm sent: " + resp.body + ", #{sm.transaction_id}"
+            rescue
+              Rails.logger.info "Sm sending failed..." + sm.to_s
+            end
+            
           end
           render :json => current_refinery_user, :status => 200
         else
