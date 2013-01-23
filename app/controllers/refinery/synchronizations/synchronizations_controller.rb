@@ -152,7 +152,8 @@ module Refinery
           user.save
           
           signup = ::Refinery::Signups::Signup.create(:user_id => user.id, :name => "Kayıt Olma Bonusu", :points => 100)
-          ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => user.id, :activityitem_id => signup.activityitem_id, :collected_at => DateTime.now, :points => signup.points, :name => signup.name)
+          ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => user.id, :activityitem_id => signup.activityitem_id,
+            :collected_at => DateTime.now, :points => signup.points, :name => signup.name, :balloon_popped => false)
           
           invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["phone = ?", user.phone ])
           if invitation.nil? then
@@ -162,7 +163,8 @@ module Refinery
           if not invitation.nil? then
             Rails.logger.info ("Invitation exists for phone: #{user.phone} with user_id: #{invitation.user_id}")
             referral_act = ::Refinery::Referrals::Referral.create(:user_id => invitation.user_id, :referred_user_id => user.id, :name => "Referring " + user.name, :points => 100)
-            ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => invitation.user_id, :activityitem_id => referral_act.activityitem_id, :collected_at => DateTime.now, :points => referral_act.points, :name => referral_act.name)
+            ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => invitation.user_id, :activityitem_id => referral_act.activityitem_id,
+              :collected_at => DateTime.now, :points => referral_act.points, :name => referral_act.name, :balloon_popped => false)
           else
             Rails.logger.info ("Invitation does not exists for phone: #{user.phone}")
           end
@@ -232,7 +234,8 @@ module Refinery
             
             if not invitation.nil? then
               referral_act = ::Refinery::Referrals::Referral.create(:user_id => invitation.user_id, :referred_user_id => current_refinery_user.id, :name => "Referring " + current_refinery_user.name, :points => 100)
-              ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => invitation.user_id, :activityitem_id => referral_act.activityitem_id, :collected_at => DateTime.now, :points => referral_act.points, :name => referral_act.name)
+              ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => invitation.user_id, :activityitem_id => referral_act.activityitem_id,
+                :collected_at => DateTime.now, :points => referral_act.points, :name => referral_act.name, :balloon_popped => false)
             end
           end
          
