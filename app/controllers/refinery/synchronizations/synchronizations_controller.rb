@@ -195,7 +195,7 @@ module Refinery
                   end
 
                   if not invitation.nil? then
-                    Rails.logger.info "Invitation exists: p: #{current_refinery_user.phone}, e: #{current_refinery_user.email}, fb: #{current_refinery_user.facebook_id}, with user_id: #{invitation.user_id}"
+                    Rails.logger.info "Invitation exists: p: #{invitation.phone}, e: #{invitation.email}, fb: #{invitation.facebook_id}, with user_id: #{invitation.user_id}"
                     referral_act = ::Refinery::Referrals::Referral.create(:user_id => invitation.user_id, :referred_user_id => current_refinery_user.id,
                       :name => "Referring " + current_refinery_user.name, :points => 100)
                     ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => invitation.user_id, :activityitem_id => referral_act.activityitem_id,
