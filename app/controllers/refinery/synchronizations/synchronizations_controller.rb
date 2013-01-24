@@ -188,10 +188,17 @@ module Refinery
 
                 if ::Refinery::Referrals::Referral.find(:first, :conditions => ["referred_user_id = ?", current_refinery_user.id]).nil? then
                   invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["phone = ?", current_refinery_user.phone ])
+                  
+                  
                   if invitation.nil? then
                     invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["email = ?", current_refinery_user.email ])
                   elsif invitation.nil? and not current_refinery_user.facebook.nil? then
+                    Rails.logger.info "Current refinery user has facebook id: #{current_refinery_user.facebook.identifier}"
                     invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["facebook_id = ?", current_refinery_user.facebook.identifier ])
+                  end
+                  
+                  if current_refinery_user.facebook.nil? then
+                    Rails.logger.info "Current refinery user facebook is nil"
                   end
 
                   if not invitation.nil? then
