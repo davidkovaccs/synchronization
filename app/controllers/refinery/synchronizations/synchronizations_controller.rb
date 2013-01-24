@@ -196,11 +196,12 @@ module Refinery
 
                   if not invitation.nil? then
                     Rails.logger.info "Invitation exists: p: #{current_refinery_user.phone}, e: #{current_refinery_user.email}, fb: #{current_refinery_user.facebook_id}, with user_id: #{invitation.user_id}"
-                    referral_act = ::Refinery::Referrals::Referral.create(:user_id => invitation.user_id, :referred_user_id => user.id, :name => "Referring " + current_refinery_user.name, :points => 100)
+                    referral_act = ::Refinery::Referrals::Referral.create(:user_id => invitation.user_id, :referred_user_id => current_refinery_user.id,
+                      :name => "Referring " + current_refinery_user.name, :points => 100)
                     ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => invitation.user_id, :activityitem_id => referral_act.activityitem_id,
                       :collected_at => DateTime.now, :points => referral_act.points, :name => referral_act.name, :balloon_popped => false)
                   else
-                    Rails.logger.info "Invitation does not exists for user: #{current_refinery_user.name}"
+                    Rails.logger.info "Invitation does not exists for user: #{current_refinery_user.name}, p: #{current_refinery_user.phone}, e: #{current_refinery_user.email}"
                   end
                 end
               end
