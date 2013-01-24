@@ -187,12 +187,16 @@ module Refinery
                   :collected_at => DateTime.now, :points => signup.points, :name => signup.name, :balloon_popped => false)
 
                 if ::Refinery::Referrals::Referral.find(:first, :conditions => ["referred_user_id = ?", current_refinery_user.id]).nil? then
+                  Rails.logger.info "Invitation is nil trying with phone"
                   invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["phone = ?", current_refinery_user.phone ])
                   
-                  
                   if invitation.nil? then
+                    Rails.logger.info "Invitation is nil trying with email"
                     invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["email = ?", current_refinery_user.email ])
-                  elsif invitation.nil? and not current_refinery_user.facebook.nil? then
+                  end
+                  
+                  Rails.logger.info "Invitation: #{invitation.nil?} #{current_refinery_user.facebook.nil?}"
+                  if invitation.nil? and not current_refinery_user.facebook.nil? then
                     Rails.logger.info "Current refinery user has facebook id: #{current_refinery_user.facebook.identifier}"
                     invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["facebook_id = ?", current_refinery_user.facebook.identifier ])
                   end
