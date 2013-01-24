@@ -151,24 +151,6 @@ module Refinery
           
           user.save
           
-          signup = ::Refinery::Signups::Signup.create(:user_id => user.id, :name => "Kayıt Olma Bonusu", :points => 100)
-          ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => user.id, :activityitem_id => signup.activityitem_id,
-            :collected_at => DateTime.now, :points => signup.points, :name => signup.name, :balloon_popped => false)
-          
-          invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["phone = ?", user.phone ])
-          if invitation.nil? then
-            invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["email = ?", user.email ])
-          end
-
-          if not invitation.nil? then
-            Rails.logger.info ("Invitation exists for phone: #{user.phone} with user_id: #{invitation.user_id}")
-            referral_act = ::Refinery::Referrals::Referral.create(:user_id => invitation.user_id, :referred_user_id => user.id, :name => "Referring " + user.name, :points => 100)
-            ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => invitation.user_id, :activityitem_id => referral_act.activityitem_id,
-              :collected_at => DateTime.now, :points => referral_act.points, :name => referral_act.name, :balloon_popped => false)
-          else
-            Rails.logger.info ("Invitation does not exists for phone: #{user.phone}")
-          end
-          
           render :json => user
         else
           error_str = user.errors.full_messages.to_s
@@ -198,6 +180,31 @@ module Refinery
             elsif current_refinery_user.verification_code == params[:verification_code].to_i then
               current_refinery_user.verified = true
               current_refinery_user.save
+              
+              if ::Refinery::Signups::Signup.find(:first, :conditions => ["user_id = ?", current_refinery_user.id]).nil? then
+                signup = ::Refinery::Signups::Signup.create(:user_id => current_refinery_user.id, :name => "Kayıt Olma Bonusu", :points => 100)
+                ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => current_refinery_user.id, :activityitem_id => signup.activityitem_id,
+                  :collected_at => DateTime.now, :points => signup.points, :name => signup.name, :balloon_popped => false)
+
+                if ::Refinery::Referrals::Referral.find(:first, :conditions => ["referred_user_id = ?", current_refinery_user.id]).nil? then
+                  invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["phone = ?", current_refinery_user.phone ])
+                  if invitation.nil? then
+                    invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["email = ?", current_refinery_user.email ])
+                  elsif invitation.nil? and not current_refinery_user.facebook.nil? then
+                    invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["facebook_id = ?", current_refinery_user.facebook.identifier ])
+                  end
+
+                  if not invitation.nil? then
+                    Rails.logger.info "Invitation exists: p: #{current_refinery_user.phone}, e: #{current_refinery_user.email}, fb: #{current_refinery_user.facebook_id}, with user_id: #{invitation.user_id}"
+                    referral_act = ::Refinery::Referrals::Referral.create(:user_id => invitation.user_id, :referred_user_id => user.id, :name => "Referring " + current_refinery_user.name, :points => 100)
+                    ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => invitation.user_id, :activityitem_id => referral_act.activityitem_id,
+                      :collected_at => DateTime.now, :points => referral_act.points, :name => referral_act.name, :balloon_popped => false)
+                  else
+                    Rails.logger.info "Invitation does not exists for user: #{current_refinery_user.name}"
+                  end
+                end
+              end
+              
               render :json => current_refinery_user, :status => 200
             else
               raise BadRequest
@@ -227,18 +234,6 @@ module Refinery
             Rails.logger.info "There is already user with the same phone number: #{params[:phone]}"
             raise RecordConflict.new("phone")
           end
-         
-          if ::Refinery::Referrals::Referral.find(:first, :conditions => ["referred_user_id = ?", current_refinery_user.id]).nil? then
-            Rails.logger.info("Search for phone: #{current_refinery_user.phone}")
-            invitation = ::Refinery::Invitations::Invitation.find(:first, :conditions => ["phone = ?", current_refinery_user.phone ])
-            
-            if not invitation.nil? then
-              referral_act = ::Refinery::Referrals::Referral.create(:user_id => invitation.user_id, :referred_user_id => current_refinery_user.id, :name => "Referring " + current_refinery_user.name, :points => 100)
-              ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => invitation.user_id, :activityitem_id => referral_act.activityitem_id,
-                :collected_at => DateTime.now, :points => referral_act.points, :name => referral_act.name, :balloon_popped => false)
-            end
-          end
-         
         end
 
         # UPDATE NAME
