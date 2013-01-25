@@ -211,6 +211,8 @@ module Refinery
                       :name => "Referring " + current_refinery_user.name, :points => 100)
                     ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => invitation.user_id, :activityitem_id => referral_act.activityitem_id,
                       :collected_at => DateTime.now, :points => referral_act.points, :name => referral_act.name, :balloon_popped => false)
+                    ::Refinery::TeamMembers::TeamMember.create(:user_id => invitation.user_id, :member_id => current_refinery_user.id)
+                    ::Refinery::TeamMembers::TeamMember.create(:user_id => current_refinery_user.id, :member_id => invitation.user_id)
                   else
                     Rails.logger.info "Invitation does not exists for user: #{current_refinery_user.name}, p: #{current_refinery_user.phone}, e: #{current_refinery_user.email}"
                   end
