@@ -248,7 +248,7 @@ module Refinery
           
           current_refinery_user.phone = params[:phone]
           
-          if not current_refiner_user.phone.eql?(params[:phone]) then
+          if not current_refinery_user.phone.eql?(params[:phone]) then
             current_refinery_user.verified = false
             current_refinery_user.verification_code = rand(899999)+100000
           end
