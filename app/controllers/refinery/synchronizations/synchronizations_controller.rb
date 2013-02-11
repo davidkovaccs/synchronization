@@ -182,7 +182,7 @@ module Refinery
               current_refinery_user.save
               
               if ::Refinery::Signups::Signup.find(:first, :conditions => ["user_id = ?", current_refinery_user.id]).nil? then
-                signup = ::Refinery::Signups::Signup.create(:user_id => current_refinery_user.id, :name => "Kayıt Olma Bonusu", :points => 100)
+                signup = ::Refinery::Signups::Signup.create(:user_id => current_refinery_user.id, :name => "Kayıt Olma Bonusu", :points => ::Refinery::ToplamaxSettings::ToplamaxSetting.first.signup_points)
                 ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => current_refinery_user.id, :activityitem_id => signup.activityitem_id,
                   :collected_at => DateTime.now, :points => signup.points, :name => signup.name, :balloon_popped => false)
 
@@ -208,7 +208,7 @@ module Refinery
                   if not invitation.nil? then
                     Rails.logger.info "Invitation exists: p: #{invitation.phone}, e: #{invitation.email}, fb: #{invitation.facebook_id}, with user_id: #{invitation.user_id}"
                     referral_act = ::Refinery::Referrals::Referral.create(:user_id => invitation.user_id, :referred_user_id => current_refinery_user.id,
-                      :name => "Tavsiye " + current_refinery_user.name, :points => 100)
+                      :name => "Tavsiye " + current_refinery_user.name, :points => ::Refinery::ToplamaxSettings::ToplamaxSetting.first.referral_points)
                     ::Refinery::CollectedActivityitems::CollectedActivityitem.create(:user_id => invitation.user_id, :activityitem_id => referral_act.activityitem_id,
                       :collected_at => DateTime.now, :points => referral_act.points, :name => referral_act.name, :balloon_popped => false)
                     ::Refinery::TeamMembers::TeamMember.create(:user_id => invitation.user_id, :member_id => current_refinery_user.id)
