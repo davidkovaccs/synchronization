@@ -113,11 +113,30 @@ module Refinery
           end
           
           unless obj.nil? then
-            @records << Synchronization.new(:method_name => "update", :model_name => obj_class.name.split('::').last, :model_updated_at => obj.updated_at, :updated_at => obj.updated_at)
+             new_rec = Synchronization.new(:method_name => "update", :model_name => obj_class.name.split('::').last, :model_updated_at => obj.updated_at, :updated_at => obj.updated_at)
+             new_rec.id = generate_model_id(obj_class.name, current_user.id, true)
+             @records << new_rec
           end
         end
 
         respond_with_records @records    
+      end
+      
+      def generate_model_id(obj_class_name, user_id, update)
+        if (update) then
+          gen_id = "#{user_id}440000"
+        else
+          gen_id = "#{user_id}990000"
+        end
+
+        gen_id = gen_id.to_i
+        Rails.logger.info "gen0 id: #{gen_id}"
+        obj_class_name.bytes.each do |c|
+          gen_id = gen_id + c
+        end
+        Rails.logger.info "gen1 id: #{gen_id}"
+        gen_id
+        return gen_id.to_s
       end
       
       # FIXME: +1
