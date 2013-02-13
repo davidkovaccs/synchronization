@@ -13,6 +13,7 @@ module Refinery
           plugin.name = "synchronizations"
           plugin.url = proc { Refinery::Core::Engine.routes.url_helpers.synchronizations_admin_synchronizations_path }
           plugin.pathname = root
+          plugin.hide_from_menu = true
           plugin.activity = {
             :class_name => :'refinery/synchronizations/synchronization',
             :title => 'model_name'
