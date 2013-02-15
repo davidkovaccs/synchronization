@@ -151,6 +151,16 @@ module Refinery
           
           user.save
           
+          sm = ::Refinery::Sms::Sm.create(:message => "Your verification code is: #{user.verification_code}", :to_number => user.phone, :user_id => user.id)
+          
+          begin
+            Rails.logger.info "Sm created: " + sm.to_s
+            resp = sm.send_to_dst
+            Rails.logger.info "Sm sent: " + resp.body + ", #{sm.transaction_id}"
+          rescue
+            Rails.logger.info "Sm sending failed..." + sm.to_s
+          end
+          
           render :json => user
         else
           error_str = user.errors.full_messages.to_s
