@@ -18,7 +18,7 @@ module Refinery
       before_filter :check_model, :only => [:sync_model, :sync_model_auth, :create_record, :model_indexes, :model_indexes_auth]
       # before_filter :authenticate_refinery_user!, :only => [:sync_model_auth, :synchronizations_all, :create_record, :login, :update_user, :verify_user, :model_indexes_auth]
       # FIXME: authenticate_refinery_user! should do this
-      before_filter :fb_test, :only => [:sync_model_auth, :synchronizations_all, :create_record, :login, :update_user, :verify_user, :model_indexes_auth]
+      before_filter :fb_test, :only => [:sync_model_auth, :synchronizations_all, :create_record, :login, :update_user, :verify_user, :model_indexes_auth, :change_password]
     
       rescue_from ::BadRequest, :with => :bad_request
       rescue_from ::RecordConflict, :with => :record_conflict
@@ -236,6 +236,27 @@ module Refinery
         else
           raise Unauthorized
         end
+      end
+      
+      def change_password
+        if current_refinery_user.nil? then
+          Rails.logger.info "Unauthorized user!"
+          raise Unauthorized
+        end
+        
+        Rails.logger.info "Change Password with params: #{params.inspect}"
+        
+        if params[:current_password].nil? or params[:new_password].nil? then
+            Rails.logger.info "There are not enough params"
+            raise RecordConflict.new("not enough params")
+        end
+        
+        current_refinery_user.password = params[:new_password]
+        current_refinery_user.password_confirmation = params[:new_password]
+        
+        current_refinery_user.save
+        
+        render :json => current_refinery_user, :status => 200
       end
       
       def update_user

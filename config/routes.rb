@@ -8,6 +8,7 @@ Refinery::Core::Engine.routes.append do
     get "me" => "synchronizations#login"
     post "synchronizations/register" => "synchronizations#register"
     put "me" => "synchronizations#update_user"
+    post "me/change_password" => "synchronizations#change_password"
   end
 
   # Frontend routes
