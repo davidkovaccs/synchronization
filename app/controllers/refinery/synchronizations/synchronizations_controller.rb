@@ -101,6 +101,11 @@ module Refinery
         else
           @records = Synchronization.find(:all, :conditions => ['updated_at > ?', Time.parse(params[:updated_at])+1])
         end
+        
+        if $objects_needs_auth.empty? then
+          ::Refinery::Runs::Run.first
+          ::Refinery::CouponItems::CouponItem.first
+        end
 
         for obj_class in $objects_needs_auth do
           Rails.logger.info "Obj that needs auth: #{obj_class.name}"
