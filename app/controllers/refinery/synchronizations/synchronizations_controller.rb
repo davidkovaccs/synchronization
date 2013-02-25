@@ -111,7 +111,7 @@ module Refinery
           if params[:updated_at].nil? then
             obj = obj_class.find_all_by_user_id(current_user.id).sort_by(&:updated_at).last
           else
-            obj = obj_class.find_all_by_user_id(current_user.id).select(&:updated_at > Time.parse(params[:updated_at])+1).sort_by(&:updated_at).last
+            obj = obj_class.find_all_by_user_id(current_user.id).select{|o| o.updated_at > Time.parse(params[:updated_at])+1}.sort_by(&:updated_at).last
             #obj = obj_class.find(:first, :order => "updated_at DESC", :conditions => ['updated_at > ? and user_id = ?', Time.parse(params[:updated_at])+1, current_user.id])
           end
           
