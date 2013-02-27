@@ -105,6 +105,7 @@ module Refinery
             end 
 
             if needs_authentication?
+              $objects_needs_auth.delete(self)
               $objects_needs_auth << self
             end
 

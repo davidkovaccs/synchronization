@@ -102,8 +102,18 @@ module Refinery
           @records = Synchronization.find(:all, :conditions => ['updated_at > ?', Time.parse(params[:updated_at])+1])
         end
         
-        ::Refinery::Runs::Run.first
-        ::Refinery::CouponItems::CouponItem.first
+        if $objects_needs_auth.include?(::Refinery::Runs::Run) 
+          ::Refinery::Runs::Run.first
+        end 
+        
+        if $objects_needs_auth.include?(::Refinery::CouponItems::CouponItem) 
+          ::Refinery::CouponItems::CouponItem.first
+        end
+        
+        if $objects_needs_auth.include?(::Refinery::Points::Point) 
+          ::Refinery::Points::Point.first
+        end
+        
 
         for obj_class in $objects_needs_auth do
           Rails.logger.info "Obj that needs auth: #{obj_class.name}"
