@@ -18,7 +18,7 @@ module Refinery
       before_filter :check_model, :only => [:sync_model, :sync_model_auth, :create_record, :model_indexes, :model_indexes_auth]
       # before_filter :authenticate_refinery_user!, :only => [:sync_model_auth, :synchronizations_all, :create_record, :login, :update_user, :verify_user, :model_indexes_auth]
       # FIXME: authenticate_refinery_user! should do this
-      before_filter :fb_test, :only => [:sync_model_auth, :synchronizations_all, :create_record, :login, :update_user, :verify_user, :model_indexes_auth, :change_password]
+      before_filter :fb_test, :only => [:sync_model_auth, :synchronizations_all, :create_record, :login, :update_user, :verify_user, :model_indexes_auth, :change_password, :resend_code]
     
       rescue_from ::BadRequest, :with => :bad_request
       rescue_from ::RecordConflict, :with => :record_conflict
@@ -186,7 +186,7 @@ module Refinery
       def verify_user
         unless current_refinery_user.nil? then
             if params[:verification_code].nil? then
-              raise BadRequest
+              raise BadRequest.new("Verification code needed")
             elsif current_refinery_user.verification_code == params[:verification_code].to_i then
               current_refinery_user.verified = true
               current_refinery_user.save
@@ -231,12 +231,35 @@ module Refinery
               
               render :json => current_refinery_user, :status => 200
             else
-              raise BadRequest
+              raise BadRequest.new("Verification code does not match")
             end
         else
           raise Unauthorized
         end
       end
+      
+      
+      def resend_code
+        if current_refinery_user.nil? then
+          # FIXME: should never happen
+          return render :json => "", :status => 401
+        end
+        
+        Rails.logger.info "Params: " + params.to_s
+
+        sm = ::Refinery::Sms::Sm.create(:message => "Your verification code is: #{current_refinery_user.verification_code}", :to_number => current_refinery_user.phone, :user_id => current_refinery_user.id)
+        
+        begin
+          Rails.logger.info "Sm created: " + sm.to_s
+          resp = sm.send_to_dst
+          Rails.logger.info "Sm sent: " + resp.body + ", #{sm.transaction_id}"
+        rescue
+          Rails.logger.info "Sm sending failed..." + sm.to_s
+        end
+          
+        render :json => current_refinery_user, :status => 200
+      end
+      
       
       def change_password
         if current_refinery_user.nil? then
@@ -291,7 +314,7 @@ module Refinery
           last_name = params[:name].split(" ").second
           if first_name.nil? or last_name.nil? then
             Rails.logger.info "No first_name: #{first_name} or last name: #{last_name} where name: #{params[:name]}"
-            raise BadRequest
+            raise BadRequest.new("missing name")
           end
           current_refinery_user.first_name = first_name
           current_refinery_user.last_name = last_name
@@ -348,7 +371,7 @@ module Refinery
           render :json => current_refinery_user, :status => 200
         else
           Rails.logger.info "Can't save user: #{current_refinery_user.errors.full_messages}"
-          raise BadRequest
+          raise BadRequest.new("#{current_refinery_user.errors.full_messages}")
         end
       end
       
