@@ -271,7 +271,12 @@ module Refinery
         
         if params[:current_password].nil? or params[:new_password].nil? then
             Rails.logger.info "There are not enough params"
-            raise RecordConflict.new("not enough params")
+            raise BadRequest.new("not enough params")
+        end
+        
+        if not current_refinery_user.valid_password?(params[:current_password]) then
+          Rails.logger.info "Current password is invalid"
+          raise BadRequest.new("Invalid current password")
         end
         
         current_refinery_user.password = params[:new_password]
