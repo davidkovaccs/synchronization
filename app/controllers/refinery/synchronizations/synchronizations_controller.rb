@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 require 'devise'
 #require 'backports'
 require "backports/1.8.7"

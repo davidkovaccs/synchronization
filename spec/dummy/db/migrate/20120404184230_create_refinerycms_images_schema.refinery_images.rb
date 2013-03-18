@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 # This migration comes from refinery_images (originally 20100913234707)
 class CreateRefinerycmsImagesSchema < ActiveRecord::Migration
   def change

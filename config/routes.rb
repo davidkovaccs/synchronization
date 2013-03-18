@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 Refinery::Core::Engine.routes.append do
 
   namespace :synchronizations, :path => '' do

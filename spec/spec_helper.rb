@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 def setup_environment
   # Configure Rails Environment
   ENV["RAILS_ENV"] ||= 'test'

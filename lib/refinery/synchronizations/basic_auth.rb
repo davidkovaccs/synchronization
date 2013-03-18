@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 Warden::Strategies.add(:basic) do
   def auth
     @auth ||= Rack::Auth::Basic::Request.new(env)

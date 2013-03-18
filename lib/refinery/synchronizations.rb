@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 require 'refinerycms-core'
 
 module Refinery

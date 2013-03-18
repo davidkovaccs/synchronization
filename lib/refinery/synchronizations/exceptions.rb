@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 class BadRequest < StandardError
   attr :why
   def initialize(p_why)

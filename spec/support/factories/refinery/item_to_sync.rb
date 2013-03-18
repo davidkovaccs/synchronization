@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 #class ItemToSync < Refinery::Core::BaseModel
 #  attr_accessible :name, :length
 #  synchronizable

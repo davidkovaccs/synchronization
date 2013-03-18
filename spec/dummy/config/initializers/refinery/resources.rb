@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 Refinery::Resources.configure do |config|
   # Configures the maximum allowed upload size (in bytes) for a file upload
   # config.max_file_size = 52428800

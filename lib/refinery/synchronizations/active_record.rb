@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 module Refinery
   module Paginate
     def paginate(page_num, page_size)

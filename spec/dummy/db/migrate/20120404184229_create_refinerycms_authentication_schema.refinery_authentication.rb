@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 # This migration comes from refinery_authentication (originally 20100913234705)
 class CreateRefinerycmsAuthenticationSchema < ActiveRecord::Migration
   def change

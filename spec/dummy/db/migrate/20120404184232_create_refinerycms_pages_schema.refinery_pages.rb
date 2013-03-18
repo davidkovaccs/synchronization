@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 # This migration comes from refinery_pages (originally 20100913234708)
 class CreateRefinerycmsPagesSchema < ActiveRecord::Migration
   def up

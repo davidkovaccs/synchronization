@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 # This migration comes from refinery_synchronizations (originally 1)
 class CreateSynchronizationsSynchronizations < ActiveRecord::Migration
 
