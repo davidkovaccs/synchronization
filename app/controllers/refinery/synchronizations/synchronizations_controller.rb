@@ -79,7 +79,7 @@ module Refinery
         end
 
         if not user.facebook.nil? then
-          sm = ::Refinery::Sms::Sm.create(:message => "You've registered with facebook. Log in with your facebook credentials.", :to_number => params[:phone], :user_id => user.id)
+          sm = ::Refinery::Sms::Sm.create(:message => "Facebook ile üye oldugunuz için Facebook hesap bilgilerinizle baglanmaniz gerekmektedir.", :to_number => params[:phone], :user_id => user.id)
           
           # begin
           #   Rails.logger.info "Sm created: " + sm.to_s
@@ -93,7 +93,7 @@ module Refinery
           user.password = new_password
           user.password_confirmation = new_password
           user.save
-          sm = ::Refinery::Sms::Sm.create(:message => "Your email address is: #{user.email}, your new password is: #{new_password}", :to_number => params[:phone], :user_id => user.id)
+          sm = ::Refinery::Sms::Sm.create(:message => "Email Adresiniz: #{user.email}, Yeni Şifreniz: #{new_password}", :to_number => params[:phone], :user_id => user.id)
           Rails.logger.info "Sm created with message: #{sm.message}"
         end
         
@@ -152,7 +152,7 @@ module Refinery
           
           user.save
           
-          sm = ::Refinery::Sms::Sm.create(:message => "Your verification code is: #{user.verification_code}", :to_number => user.phone, :user_id => user.id)
+          sm = ::Refinery::Sms::Sm.create(:message => "SMS Onay kodunuz: #{user.verification_code}", :to_number => user.phone, :user_id => user.id)
           
           begin
             Rails.logger.info "Sm created: " + sm.to_s
@@ -248,7 +248,7 @@ module Refinery
         
         Rails.logger.info "Params: " + params.to_s
 
-        sm = ::Refinery::Sms::Sm.create(:message => "Your verification code is: #{current_refinery_user.verification_code}", :to_number => current_refinery_user.phone, :user_id => current_refinery_user.id)
+        sm = ::Refinery::Sms::Sm.create(:message => "SMS Onay kodunuz:: #{current_refinery_user.verification_code}", :to_number => current_refinery_user.phone, :user_id => current_refinery_user.id)
         
         begin
           Rails.logger.info "Sm created: " + sm.to_s
@@ -363,7 +363,7 @@ module Refinery
         # TRY TO SAVE THE USER
         if current_refinery_user.save then
           if params[:phone].present? then
-            sm = ::Refinery::Sms::Sm.create(:message => "Your verification code is: #{current_refinery_user.verification_code}", :to_number => params[:phone], :user_id => current_refinery_user.id)
+            sm = ::Refinery::Sms::Sm.create(:message => "SMS Onay kodunuz: #{current_refinery_user.verification_code}", :to_number => params[:phone], :user_id => current_refinery_user.id)
             
             begin
               Rails.logger.info "Sm created: " + sm.to_s
