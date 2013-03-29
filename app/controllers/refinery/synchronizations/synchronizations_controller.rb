@@ -34,6 +34,12 @@ module Refinery
           env['warden'].authenticate(:facebook)
           return
         end
+        if Warden::Strategies[:twitter].new(request.env).valid? then
+          Rails.logger.info "Testing33 tw: #{params[:twitter_auth_token]}, #{params[:twitter_auth_secret]}"
+          Warden::Strategies[:twitter].new(request.env).authenticate!
+          env['warden'].authenticate(:twitter)
+          return
+        end
         if not current_refinery_user.nil?
           Rails.logger.info "Testing basic0: #{current_refinery_user.first_name}"
         end

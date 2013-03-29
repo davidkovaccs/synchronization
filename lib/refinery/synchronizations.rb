@@ -7,6 +7,7 @@ module Refinery
   module Synchronizations
     require 'refinery/synchronizations/engine'
     require 'refinery/synchronizations/basic_auth'
+    require 'refinery/synchronizations/twitter_strategy'
     require 'refinery/synchronizations/exceptions'
 
     class << self
