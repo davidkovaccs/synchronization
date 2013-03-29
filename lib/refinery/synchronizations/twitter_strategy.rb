@@ -31,10 +31,10 @@ Warden::Strategies.add(:twitter) do
 
       # Facebook object is saved here
       Rails.logger.info "Twitter user is: #{twitter_graph_user.inspect}"
-      twitter_user = ::Refinery::Twitters::Twitter.identify(twitter_graph_user) 
+      twitter_user = ::Refinery::Twitters::Twitter.identify(twitter_graph_user, params[:twitter_auth_token], params[:twitter_auth_secret]) 
 
-      if fb_user.user.nil? then
-        Rails.logger.info "FBUser is nil, new user needs to be registered"
+      if twitter_user.user.nil? then
+        Rails.logger.info "TwitterUser is nil, new user needs to be registered"
         begin
           user = Warden::Strategies[:basic].new(request.env).authenticate!
         rescue Unauthorized
@@ -42,7 +42,7 @@ Warden::Strategies.add(:twitter) do
 
         if user.nil? then
           Rails.logger.info "User with basic auth is nil"
-          random_password = Digest::SHA1.hexdigest("--#{Time.now.to_s}--#{fb_graph_user.email}--#{params[:fb_auth_token]}--")[0,10]
+          random_password = Digest::SHA1.hexdigest("--#{Time.now.to_s}--#{twitter_user.identifier}--#{params[:twitter_auth_token]}--")[0,10]
           user = ::Refinery::User.new
           user.anonymous = true
           user.password = random_password
@@ -52,20 +52,22 @@ Warden::Strategies.add(:twitter) do
 
         if user.anonymous then
           Rails.logger.info "User is anonymous, setting stuff"
-          user.first_name = fb_graph_user.first_name
-          user.last_name = fb_graph_user.last_name
-          user.email = fb_graph_user.email
-          user.username = fb_graph_user.email
+          user.first_name = twitter_graph_user.attrs[:name].split(" ").first
+          if not twitter_graph_user.attrs[:name].split(" ").second.nil? then
+            user.last_name = twitter_graph_user.attrs[:name].split(" ").second
+          else
+            user.last_name = " "
+          end
+
+          Rails.logger.info "ASDFASDFADSF: #{twitter_user.identifier}"
+          user.email = "#{twitter_user.identifier}@toplamaxTwitter.com"
+          user.username = "#{twitter_user.identifier}@toplamaxTwitter.com"
           user.manual_signup = false
 
-          user.gender = fb_graph_user.gender
-          user.timeline_share = "true"
+          user.timeline_share = "false"
           user.verification_code = rand(899999)+100000
           user.verified = false
 
-          if not fb_graph_user.birthday.nil? then
-            user.birthday = fb_graph_user.birthday
-          end
           user.anonymous = false
           
           Rails.logger.info "Anonym was, sending email"
@@ -77,9 +79,9 @@ Warden::Strategies.add(:twitter) do
           Rails.logger.info "User is found with basic auth: #{user.first_name}"
         end
         
-        fb_user.user = user
-        fb_user.user_id = user.id
-        fb_user.save
+        twitter_user.user = user
+        twitter_user.user_id = user.id
+        twitter_user.save
       else
         if Warden::Strategies[:basic].new(request.env).valid? then
           begin
@@ -88,9 +90,9 @@ Warden::Strategies.add(:twitter) do
           end
         end
 
-        user = fb_user.user
+        user = twitter_user.user
 
-        Rails.logger.info "FBUser is valid: #{user.first_name} #{user.last_name} #{user.email} #{user.id}"
+        Rails.logger.info "TWUser is valid: #{user.first_name} #{user.last_name} #{user.email} #{user.id}"
 
         if not anonim_user.nil? and user.id != anonim_user.id then
 
@@ -101,9 +103,9 @@ Warden::Strategies.add(:twitter) do
             Rails.logger.info "Anonim user is destroyed"
           else
             Rails.logger.info "The user is a real user, merging accounts"
-            fb_user.user = anonim_user
-            fb_user.user_id = anonim_user.id
-            fb_user.save
+            twitter_user.user = anonim_user
+            twitter_user.user_id = anonim_user.id
+            twitter_user.save
             anonim_user.merge_collected_activities(user)
 
             user.destroy
@@ -120,8 +122,8 @@ Warden::Strategies.add(:twitter) do
       success!(user)
 
       return user
-    rescue FbGraph::InvalidToken
-      raise Unauthorized unless fb_user
+    rescue Exception => e
+      raise Unauthorized unless twitter_user
     end
   end
 

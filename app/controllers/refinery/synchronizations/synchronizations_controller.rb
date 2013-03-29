@@ -44,7 +44,7 @@ module Refinery
           Rails.logger.info "Testing basic0: #{current_refinery_user.first_name}"
         end
         Rails.logger.info "Testing basic end"
-        env['warden'].authenticate(:facebook, :basic)
+        env['warden'].authenticate(:facebook, :twitter, :basic)
       end
 
       # FIXME: is this necessary?
